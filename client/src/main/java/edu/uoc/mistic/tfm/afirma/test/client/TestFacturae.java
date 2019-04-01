@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
-import java.security.Provider;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,8 +13,6 @@ import java.util.logging.Logger;
 
 import org.junit.Assert;
 
-import es.gob.afirma.cert.signvalidation.SignValidity;
-import es.gob.afirma.cert.signvalidation.ValidateXMLSignature;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSigner;
@@ -82,7 +79,7 @@ public class TestFacturae {
         ks.load(new FileInputStream(new File(CERT_PATH)), CERT_PASS.toCharArray());
         pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
         cert = (X509Certificate) ks.getCertificate(CERT_ALIAS);
-        Provider provider = ks.getProvider();
+        //Provider provider = ks.getProvider();
         
 
         final AOSigner signer = new AOFacturaESigner();

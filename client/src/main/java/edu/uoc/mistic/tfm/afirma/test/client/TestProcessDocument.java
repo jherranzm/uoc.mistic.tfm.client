@@ -9,9 +9,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collections;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -25,12 +22,16 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xml.security.utils.Constants;
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import es.facturae.facturae._2014.v3_2_1.facturae.Facturae;
+import es.facturae.facturae.v3.facturae.Facturae;
 
 public class TestProcessDocument {
 	
@@ -89,24 +90,19 @@ public class TestProcessDocument {
 			String strDocument = toString(document);
 			logger.info("Factura sin Signature: [%s]", strDocument);
 			
-			
-			JAXBContext jaxbContext;
 			try
 			{
-			    jaxbContext = JAXBContext.newInstance(Facturae.class);             
-			 
-			    Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			 
-			    Facturae facturae = (Facturae) jaxbUnmarshaller.unmarshal(new StringReader(strDocument));
-			     
+	            IBindingFactory bfact = BindingDirectory.getFactory(Facturae.class);
+	            IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
+	            Facturae facturae = (Facturae)uctx.unmarshalDocument(new StringReader(strDocument), null);
+
 			    logger.info("Seller          : [%s]", facturae.getParties().getSellerParty().getTaxIdentification().getTaxIdentificationNumber());
 			    logger.info("Seller          : [%s]", facturae.getParties().getSellerParty().getLegalEntity().getCorporateName());
-			    logger.info("Factura         : [%s]", facturae.getInvoices().getInvoice().get(0).getInvoiceHeader().getInvoiceNumber());
-			    logger.info("Importe factura : [%s]", facturae.getInvoices().getInvoice().get(0).getInvoiceTotals().getInvoiceTotal());
-			}
-			catch (JAXBException e)
-			{
-			    e.printStackTrace();
+			    logger.info("Factura         : [%s]", facturae.getInvoices().getInvoiceList().get(0).getInvoiceHeader().getInvoiceNumber());
+			    logger.info("Importe factura : [%s]", facturae.getInvoices().getInvoiceList().get(0).getInvoiceTotals().getInvoiceTotal());
+			} catch (JiBXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 			
