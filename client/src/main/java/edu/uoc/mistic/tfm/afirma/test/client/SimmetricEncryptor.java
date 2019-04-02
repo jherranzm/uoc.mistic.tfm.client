@@ -1,27 +1,17 @@
 package edu.uoc.mistic.tfm.afirma.test.client;
 
-import java.io.UnsupportedEncodingException;
-import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.AlgorithmParameterSpec;
 import es.gob.afirma.core.misc.Base64;
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
-public class SimmetricEncryptor {
+public class SimmetricEncryptor extends SimmetricCommon{
 	
 	public static Logger logger = LogManager.getFormatterLogger("SimmetricEncryptor");
 
-	private String iv;
-	private String key;
-	
 	public static void main(String[] args) {
 		
 		String toEncrypt = "Whatever!";
@@ -35,9 +25,24 @@ public class SimmetricEncryptor {
 		enc.setIv(iv);
 		enc.setKey(key);
 		
+		String encrypted = enc.encrypt(toEncrypt);
+		
 		logger.info("iv  : ["+iv+"] ["+ enc.getIv().getBytes().length + "]");
 		logger.info("key : ["+key+"] ["+ enc.getKey().getBytes().length + "]");
-		logger.info(toEncrypt + ":[" + enc.encrypt(toEncrypt) + "]");
+		logger.info(toEncrypt + ":[" + encrypted + "]");
+		
+		SimmetricDecryptor dec = new SimmetricDecryptor();
+		
+		dec.setIv(iv);
+		dec.setKey(key);
+		
+		String decrypted = dec.decrypt(encrypted);
+		
+		logger.info("iv  : ["+iv+"] ["+ dec.getIv().getBytes().length + "]");
+		logger.info("key : ["+key+"] ["+ dec.getKey().getBytes().length + "]");
+		logger.info(encrypted + ":[" + decrypted + "]");
+
+		logger.info("[" + toEncrypt + "]:[" + decrypted + "]");
 	}
 	
 	public String encrypt(String src) {
@@ -49,44 +54,5 @@ public class SimmetricEncryptor {
 	    } catch (Exception e) {
 	        throw new RuntimeException(e);
 	    }
-	}
-	
-	private Key generateKey() {
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			byte[] key = md.digest(getKey().getBytes("UTF-8"));
-			return new SecretKeySpec(key, "AES");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
-	
-	private AlgorithmParameterSpec generateInitializationVector() {
-		try {
-			return new IvParameterSpec(getIv().getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public String getIv() {
-		return iv;
-	}
-
-	public void setIv(String iv) {
-		this.iv = iv;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
 	}
 }
